@@ -1,5 +1,5 @@
 // Offline support: the app is one HTML file plus icons. Serve from cache, refresh in the background.
-const CACHE = 'farmhouse-v3';
+const CACHE = 'farmhouse-v4';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE).catch(() => {})).then(() => self.skipWaiting()));
