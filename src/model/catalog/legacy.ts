@@ -1,0 +1,685 @@
+import { type Part, type Slot, box, cyl, sph, cone, f, sz } from './kit';
+import type { CatalogItem } from './types';
+
+
+
+function sofaParts(w: number, d: number, h: number): Part[] {
+  const seatH = h * 0.45;
+  const arm = Math.min(0.2, w * 0.1);
+  const back = d * 0.22;
+  return [
+    box(0, 0.08, 0, w * 0.96, 0.12, d * 0.92, 'secondary'),
+    box(0, seatH / 2 + 0.06, -back / 2 + 0.02, w - arm * 2, seatH * 0.55, d - back, 'primary'),
+    box(0, h * 0.62, -d / 2 + back / 2, w - arm * 2, h * 0.6, back, 'primary'),
+    box(-w / 2 + arm / 2, h * 0.34, 0, arm, h * 0.68, d, 'primary'),
+    box(w / 2 - arm / 2, h * 0.34, 0, arm, h * 0.68, d, 'primary'),
+    box(-w * 0.22, seatH + 0.14, d * 0.05, (w - arm * 2) * 0.46, 0.14, (d - back) * 0.9, 'primary'),
+    box(w * 0.22, seatH + 0.14, d * 0.05, (w - arm * 2) * 0.46, 0.14, (d - back) * 0.9, 'primary'),
+  ];
+}
+
+function bedParts(w: number, d: number, h: number): Part[] {
+  const mattH = h * 0.32;
+  return [
+    box(0, 0.12, 0, w, 0.18, d, 'secondary'),
+    box(0, 0.21 + mattH / 2, d * 0.02, w * 0.97, mattH, d * 0.94, 'accent'),
+    box(0, h * 0.5, -d / 2 + 0.04, w, h, 0.08, 'secondary'),
+    box(-w * 0.22, 0.21 + mattH + 0.07, -d * 0.36, w * 0.38, 0.14, d * 0.14, 'accent'),
+    box(w * 0.22, 0.21 + mattH + 0.07, -d * 0.36, w * 0.38, 0.14, d * 0.14, 'accent'),
+    box(0, 0.21 + mattH + 0.03, d * 0.18, w * 0.98, 0.06, d * 0.56, 'primary'),
+    box(0, 0.06, d / 2 - 0.05, w, 0.12, 0.08, 'secondary'),
+  ];
+}
+
+function chairParts(w: number, d: number, h: number): Part[] {
+  const seat = h * 0.5;
+  const lw = 0.035;
+  return [
+    box(0, seat, 0, w, 0.04, d, 'primary'),
+    box(0, seat + (h - seat) / 2, -d / 2 + 0.02, w, h - seat, 0.04, 'primary'),
+    box(-w / 2 + lw, seat / 2, -d / 2 + lw, lw, seat, lw, 'secondary'),
+    box(w / 2 - lw, seat / 2, -d / 2 + lw, lw, seat, lw, 'secondary'),
+    box(-w / 2 + lw, seat / 2, d / 2 - lw, lw, seat, lw, 'secondary'),
+    box(w / 2 - lw, seat / 2, d / 2 - lw, lw, seat, lw, 'secondary'),
+  ];
+}
+
+function tableParts(w: number, d: number, h: number): Part[] {
+  const t = 0.05;
+  const lw = Math.min(0.09, w * 0.06);
+  return [
+    box(0, h - t / 2, 0, w, t, d, 'primary'),
+    box(-w / 2 + lw, (h - t) / 2, -d / 2 + lw, lw, h - t, lw, 'secondary'),
+    box(w / 2 - lw, (h - t) / 2, -d / 2 + lw, lw, h - t, lw, 'secondary'),
+    box(-w / 2 + lw, (h - t) / 2, d / 2 - lw, lw, h - t, lw, 'secondary'),
+    box(w / 2 - lw, (h - t) / 2, d / 2 - lw, lw, h - t, lw, 'secondary'),
+  ];
+}
+
+function cabinetParts(w: number, d: number, h: number, top = 'accent' as Slot): Part[] {
+  const kick = 0.1;
+  return [
+    box(0, kick / 2, -0.02, w * 0.96, kick, d * 0.9, 'metal'),
+    box(0, kick + (h - kick - 0.04) / 2, 0, w, h - kick - 0.04, d, 'primary'),
+    box(0, h - 0.02, 0.01, w + 0.02, 0.04, d + 0.03, top),
+    box(-w * 0.22, h * 0.55, d / 2 + 0.01, 0.015, 0.14, 0.02, 'metal'),
+    box(w * 0.22, h * 0.55, d / 2 + 0.01, 0.015, 0.14, 0.02, 'metal'),
+    box(0, kick + (h - kick) / 2, d / 2 + 0.002, 0.008, h - kick - 0.04, 0.004, 'secondary'),
+  ];
+}
+
+function shelfParts(w: number, d: number, h: number, shelves = 5): Part[] {
+  const t = 0.03;
+  const parts: Part[] = [
+    box(-w / 2 + t / 2, h / 2, 0, t, h, d, 'primary'),
+    box(w / 2 - t / 2, h / 2, 0, t, h, d, 'primary'),
+    box(0, h / 2, -d / 2 + 0.01, w, h, 0.02, 'secondary'),
+    box(0, 0.05, 0, w, 0.1, d, 'primary'),
+  ];
+  for (let i = 0; i < shelves; i++) {
+    const y = 0.1 + ((h - 0.14) * (i + 1)) / (shelves + 0.0001);
+    parts.push(box(0, y, 0, w - t * 2, t, d - 0.02, 'primary'));
+  }
+  // a few books for texture
+  parts.push(box(-w * 0.18, h * 0.3, 0, 0.18, 0.2, d * 0.5, 'accent'));
+  parts.push(box(w * 0.14, h * 0.55, 0, 0.22, 0.2, d * 0.5, 'accent'));
+  return parts;
+}
+
+export const LEGACY_CATALOG: CatalogItem[] = [
+  // ---------------- Living
+  {
+    id: 'sofa',
+    name: 'Sofa',
+    category: 'Living',
+    size: sz(7.5, 3.2, 2.8),
+    slots: { primary: { label: 'Upholstery', default: 'fabric-charcoal' }, secondary: { label: 'Base', default: 'black-wood' } },
+    parts: sofaParts,
+    solid: true,
+  },
+  {
+    id: 'sectional',
+    name: 'Sectional sofa',
+    category: 'Living',
+    size: sz(10.5, 3.4, 2.8),
+    slots: { primary: { label: 'Upholstery', default: 'fabric-cream' }, secondary: { label: 'Base', default: 'black-wood' } },
+    parts: (w, d, h) => [...sofaParts(w, d, h), box(w / 2 - 1.0, h * 0.2, d / 2 + 0.6, 1.9, h * 0.4, 1.2, 'primary')],
+    solid: true,
+  },
+  {
+    id: 'armchair',
+    name: 'Armchair',
+    category: 'Living',
+    size: sz(2.8, 3, 2.9),
+    slots: { primary: { label: 'Upholstery', default: 'leather-cognac' }, secondary: { label: 'Legs', default: 'walnut-furniture' } },
+    parts: sofaParts,
+    solid: true,
+  },
+  {
+    id: 'coffee-table',
+    name: 'Coffee table',
+    category: 'Living',
+    size: sz(4, 2.2, 1.5),
+    slots: { primary: { label: 'Top', default: 'walnut-furniture' }, secondary: { label: 'Legs', default: 'black-metal' } },
+    parts: tableParts,
+    solid: true,
+  },
+  {
+    id: 'side-table',
+    name: 'Side table',
+    category: 'Living',
+    size: sz(1.6, 1.6, 2),
+    slots: { primary: { label: 'Top', default: 'walnut-furniture' }, secondary: { label: 'Legs', default: 'black-metal' } },
+    parts: (w, d, h) => [cyl(0, h - 0.02, 0, w, 0.04, d, 'primary'), cyl(0, h / 2, 0, 0.06, h - 0.04, 0.06, 'secondary'), cyl(0, 0.015, 0, w * 0.6, 0.03, d * 0.6, 'secondary')],
+    solid: true,
+  },
+  {
+    id: 'tv-console',
+    name: 'Media console',
+    category: 'Living',
+    size: sz(6, 1.6, 2),
+    slots: { primary: { label: 'Body', default: 'walnut-furniture' }, accent: { label: 'Top', default: 'walnut-furniture' } },
+    parts: (w, d, h) => [
+      ...cabinetParts(w, d, h * 0.7),
+      box(0, h * 0.7 + 0.3, 0, w * 0.6, 0.6, 0.05, 'screen'),
+      box(0, h * 0.7 + 0.03, 0, 0.3, 0.06, 0.2, 'metal'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'fireplace',
+    name: 'Stone fireplace',
+    category: 'Living',
+    size: sz(7, 1.6, 9),
+    slots: { primary: { label: 'Stone', default: 'stone-dark' }, secondary: { label: 'Mantel', default: 'timber-dark' } },
+    parts: (w, d, h) => [
+      box(0, h / 2, -d * 0.2, w, h, d * 0.6, 'primary'),
+      box(0, 0.12, d * 0.25, w * 0.7, 0.24, d * 0.5, 'primary'),
+      box(0, 0.9, d * 0.1, w * 0.42, 0.7, 0.1, 'metal'),
+      box(0, 0.8, d * 0.0, w * 0.34, 0.45, 0.25, 'fire'),
+      box(0, 1.33, d * 0.12, w * 0.95, 0.1, d * 0.5, 'secondary'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'pool-table',
+    name: 'Pool table',
+    category: 'Living',
+    size: sz(8.5, 4.6, 2.9),
+    slots: { primary: { label: 'Felt', default: 'paint-deep-green' }, secondary: { label: 'Frame', default: 'walnut-furniture' } },
+    parts: (w, d, h) => [
+      box(0, h - 0.18, 0, w, 0.16, d, 'secondary'),
+      box(0, h - 0.07, 0, w - 0.28, 0.04, d - 0.28, 'primary'),
+      box(-w / 2 + 0.2, (h - 0.2) / 2, -d / 2 + 0.2, 0.28, h - 0.2, 0.28, 'secondary'),
+      box(w / 2 - 0.2, (h - 0.2) / 2, -d / 2 + 0.2, 0.28, h - 0.2, 0.28, 'secondary'),
+      box(-w / 2 + 0.2, (h - 0.2) / 2, d / 2 - 0.2, 0.28, h - 0.2, 0.28, 'secondary'),
+      box(w / 2 - 0.2, (h - 0.2) / 2, d / 2 - 0.2, 0.28, h - 0.2, 0.28, 'secondary'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'theater-seat',
+    name: 'Theater recliner',
+    category: 'Living',
+    size: sz(2.6, 3.4, 3.1),
+    slots: { primary: { label: 'Upholstery', default: 'leather-cognac' }, secondary: { label: 'Base', default: 'black-wood' } },
+    parts: sofaParts,
+    solid: true,
+  },
+  {
+    id: 'screen',
+    name: 'Projection screen',
+    category: 'Living',
+    size: sz(11, 0.3, 6),
+    slots: { primary: { label: 'Frame', default: 'black-wood' } },
+    parts: (w, d, h) => [box(0, h / 2, 0, w, h, d, 'primary'), box(0, h / 2, d / 2 + 0.005, w - 0.2, h - 0.2, 0.01, 'glow')],
+    solid: false,
+    defaultElevation: 0.6,
+  },
+  // ---------------- Dining
+  {
+    id: 'dining-table',
+    name: 'Dining table',
+    category: 'Dining',
+    size: sz(6.5, 3.3, 2.5),
+    slots: { primary: { label: 'Top', default: 'walnut-furniture' }, secondary: { label: 'Legs', default: 'black-metal' } },
+    parts: tableParts,
+    solid: true,
+  },
+  {
+    id: 'dining-chair',
+    name: 'Dining chair',
+    category: 'Dining',
+    size: sz(1.5, 1.6, 3.1),
+    slots: { primary: { label: 'Seat', default: 'leather-cognac' }, secondary: { label: 'Frame', default: 'black-wood' } },
+    parts: chairParts,
+    solid: true,
+  },
+  {
+    id: 'bar-stool',
+    name: 'Bar stool',
+    category: 'Dining',
+    size: sz(1.4, 1.4, 2.5),
+    slots: { primary: { label: 'Seat', default: 'leather-cognac' }, secondary: { label: 'Frame', default: 'black-metal' } },
+    parts: (w, d, h) => [cyl(0, h - 0.04, 0, w, 0.08, d, 'primary'), cyl(0, h / 2, 0, 0.05, h - 0.08, 0.05, 'secondary'), cyl(0, 0.02, 0, w * 0.8, 0.04, d * 0.8, 'secondary'), cyl(0, h * 0.35, 0, w * 0.7, 0.025, d * 0.7, 'secondary')],
+    solid: true,
+  },
+  {
+    id: 'sideboard',
+    name: 'Sideboard',
+    category: 'Dining',
+    size: sz(5.5, 1.6, 2.8),
+    slots: { primary: { label: 'Body', default: 'walnut-furniture' }, accent: { label: 'Top', default: 'soapstone' } },
+    parts: (w, d, h) => cabinetParts(w, d, h),
+    solid: true,
+  },
+  // ---------------- Bedroom
+  {
+    id: 'bed',
+    name: 'Bed (queen)',
+    category: 'Bedroom',
+    size: sz(5.2, 6.8, 3.6),
+    slots: { primary: { label: 'Blanket', default: 'fabric-olive' }, secondary: { label: 'Frame', default: 'walnut-furniture' }, accent: { label: 'Bedding', default: 'bedding-linen' } },
+    parts: bedParts,
+    solid: true,
+  },
+  {
+    id: 'bed-twin',
+    name: 'Bed (twin)',
+    category: 'Bedroom',
+    size: sz(3.3, 6.5, 3.2),
+    slots: { primary: { label: 'Blanket', default: 'fabric-navy' }, secondary: { label: 'Frame', default: 'oak-furniture' }, accent: { label: 'Bedding', default: 'bedding-linen' } },
+    parts: bedParts,
+    solid: true,
+  },
+  {
+    id: 'bed-king',
+    name: 'Bed (king)',
+    category: 'Bedroom',
+    size: sz(6.4, 7, 4),
+    slots: { primary: { label: 'Blanket', default: 'fabric-rust' }, secondary: { label: 'Frame', default: 'walnut-furniture' }, accent: { label: 'Bedding', default: 'bedding-linen' } },
+    parts: bedParts,
+    solid: true,
+  },
+  {
+    id: 'nightstand',
+    name: 'Nightstand',
+    category: 'Bedroom',
+    size: sz(1.8, 1.4, 2),
+    slots: { primary: { label: 'Body', default: 'walnut-furniture' }, accent: { label: 'Top', default: 'walnut-furniture' } },
+    parts: (w, d, h) => cabinetParts(w, d, h),
+    solid: true,
+  },
+  {
+    id: 'dresser',
+    name: 'Dresser',
+    category: 'Bedroom',
+    size: sz(5, 1.6, 3),
+    slots: { primary: { label: 'Body', default: 'walnut-furniture' }, accent: { label: 'Top', default: 'walnut-furniture' } },
+    parts: (w, d, h) => [
+      ...cabinetParts(w, d, h),
+      box(-w * 0.0, h * 0.35, d / 2 + 0.002, w * 0.98, 0.008, 0.004, 'secondary'),
+      box(-w * 0.0, h * 0.62, d / 2 + 0.002, w * 0.98, 0.008, 0.004, 'secondary'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'wardrobe',
+    name: 'Wardrobe / coat closet',
+    category: 'Bedroom',
+    size: sz(4, 2, 7),
+    slots: { primary: { label: 'Body', default: 'walnut-furniture' } },
+    parts: (w, d, h) => [box(0, h / 2, 0, w, h, d, 'primary'), box(-0.05, h * 0.5, d / 2 + 0.01, 0.015, 0.4, 0.02, 'metal'), box(0.05, h * 0.5, d / 2 + 0.01, 0.015, 0.4, 0.02, 'metal'), box(0, h / 2, d / 2 + 0.003, 0.006, h * 0.96, 0.004, 'secondary')],
+    solid: true,
+  },
+  {
+    id: 'bench',
+    name: 'Bench',
+    category: 'Bedroom',
+    size: sz(4.5, 1.5, 1.6),
+    slots: { primary: { label: 'Seat', default: 'timber-dark' }, secondary: { label: 'Frame', default: 'black-metal' } },
+    parts: tableParts,
+    solid: true,
+  },
+  // ---------------- Office
+  {
+    id: 'desk',
+    name: 'Desk',
+    category: 'Office',
+    size: sz(5, 2.4, 2.5),
+    slots: { primary: { label: 'Top', default: 'walnut-furniture' }, secondary: { label: 'Legs', default: 'black-metal' } },
+    parts: tableParts,
+    solid: true,
+  },
+  {
+    id: 'office-chair',
+    name: 'Office chair',
+    category: 'Office',
+    size: sz(2.2, 2.2, 3.3),
+    slots: { primary: { label: 'Upholstery', default: 'fabric-charcoal' }, secondary: { label: 'Base', default: 'black-metal' } },
+    parts: (w, d, h) => [
+      box(0, h * 0.48, 0.02, w * 0.9, 0.1, d * 0.85, 'primary'),
+      box(0, h * 0.78, -d * 0.4, w * 0.85, h * 0.42, 0.08, 'primary'),
+      cyl(0, h * 0.25, 0, 0.06, h * 0.45, 0.06, 'secondary'),
+      cyl(0, 0.04, 0, w * 0.9, 0.06, d * 0.9, 'secondary'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'bookshelf',
+    name: 'Bookshelf',
+    category: 'Office',
+    size: sz(3.5, 1.1, 7),
+    slots: { primary: { label: 'Frame', default: 'walnut-furniture' }, secondary: { label: 'Back', default: 'black-wood' }, accent: { label: 'Books', default: 'fabric-rust' } },
+    parts: (w, d, h) => shelfParts(w, d, h, 5),
+    solid: true,
+  },
+  // ---------------- Kitchen
+  {
+    id: 'base-cabinet',
+    name: 'Base cabinet',
+    category: 'Kitchen',
+    size: sz(3, 2, 3),
+    slots: { primary: { label: 'Cabinet', default: 'walnut' }, accent: { label: 'Counter', default: 'soapstone' } },
+    parts: (w, d, h) => cabinetParts(w, d, h),
+    solid: true,
+  },
+  {
+    id: 'wall-cabinet',
+    name: 'Wall cabinet',
+    category: 'Kitchen',
+    size: sz(3, 1, 3),
+    slots: { primary: { label: 'Cabinet', default: 'walnut' } },
+    parts: (w, d, h) => [box(0, h / 2, 0, w, h, d, 'primary'), box(0, h / 2, d / 2 + 0.003, 0.006, h * 0.96, 0.004, 'secondary'), box(-w * 0.2, h * 0.3, d / 2 + 0.012, 0.015, 0.14, 0.02, 'metal'), box(w * 0.2, h * 0.3, d / 2 + 0.012, 0.015, 0.14, 0.02, 'metal')],
+    solid: false,
+    defaultElevation: 1.45,
+  },
+  {
+    id: 'island',
+    name: 'Kitchen island',
+    category: 'Kitchen',
+    size: sz(8, 3.5, 3),
+    slots: { primary: { label: 'Cabinet', default: 'walnut' }, accent: { label: 'Counter', default: 'soapstone' } },
+    parts: (w, d, h) => [
+      ...cabinetParts(w, d * 0.75, h).map((p) => ({ ...p, p: [p.p[0], p.p[1], p.p[2] - d * 0.125] as [number, number, number] })),
+      box(0, h - 0.025, d * 0.18, w + 0.04, 0.05, d * 0.64, 'accent'),
+      box(0, h * 0.5, d * 0.44, w * 0.96, h, 0.04, 'secondary'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'refrigerator',
+    name: 'Refrigerator',
+    category: 'Kitchen',
+    size: sz(3, 2.5, 6),
+    slots: { primary: { label: 'Finish', default: 'steel' } },
+    parts: (w, d, h) => [box(0, h / 2, 0, w, h, d, 'primary'), box(-0.02, h * 0.62, d / 2 + 0.02, 0.02, h * 0.3, 0.03, 'metal'), box(0, h * 0.34, d / 2 + 0.004, w * 0.98, 0.01, 0.005, 'secondary')],
+    solid: true,
+  },
+  {
+    id: 'range',
+    name: 'Range with hood',
+    category: 'Kitchen',
+    size: sz(3, 2.4, 3),
+    slots: { primary: { label: 'Finish', default: 'steel' } },
+    parts: (w, d, h) => [
+      box(0, h / 2, 0, w, h, d, 'primary'),
+      box(0, h + 0.01, 0, w, 0.03, d, 'metal'),
+      box(0, h * 0.5, d / 2 + 0.02, w * 0.8, 0.03, 0.03, 'metal'),
+      box(0, h * 0.5, d / 2 + 0.004, w * 0.82, h * 0.4, 0.006, 'screen'),
+      box(0, 1.9, -d * 0.2, w * 1.0, 0.6, d * 0.6, 'primary'),
+      box(0, 2.45, -d * 0.35, 0.3, 0.8, 0.3, 'primary'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'sink',
+    name: 'Kitchen sink cabinet',
+    category: 'Kitchen',
+    size: sz(3.2, 2, 3),
+    slots: { primary: { label: 'Cabinet', default: 'walnut' }, accent: { label: 'Counter', default: 'soapstone' } },
+    parts: (w, d, h) => [
+      ...cabinetParts(w, d, h),
+      box(0, h + 0.002, 0.0, w * 0.62, 0.012, d * 0.6, 'metal'),
+      box(0, h + 0.18, -d * 0.35, 0.04, 0.34, 0.04, 'metal'),
+      box(0, h + 0.33, -d * 0.2, 0.04, 0.04, 0.34, 'metal'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'dishwasher',
+    name: 'Dishwasher',
+    category: 'Kitchen',
+    size: sz(2, 2, 3),
+    slots: { primary: { label: 'Finish', default: 'steel' } },
+    parts: (w, d, h) => [box(0, h / 2, 0, w, h, d, 'primary'), box(0, h * 0.85, d / 2 + 0.02, w * 0.7, 0.025, 0.03, 'metal')],
+    solid: true,
+  },
+  // ---------------- Bathroom
+  {
+    id: 'toilet',
+    name: 'Toilet',
+    category: 'Bathroom',
+    size: sz(1.4, 2.4, 2.4),
+    slots: { primary: { label: 'Porcelain', default: 'porcelain' } },
+    parts: (w, d, h) => [box(0, h * 0.62, -d * 0.35, w, h * 0.76, d * 0.28, 'primary'), box(0, h * 0.2, d * 0.1, w * 0.85, h * 0.4, d * 0.65, 'primary'), box(0, h * 0.42, d * 0.1, w * 0.9, 0.05, d * 0.7, 'primary')],
+    solid: true,
+  },
+  {
+    id: 'vanity',
+    name: 'Vanity (single)',
+    category: 'Bathroom',
+    size: sz(3, 1.8, 2.8),
+    slots: { primary: { label: 'Cabinet', default: 'walnut' }, accent: { label: 'Top', default: 'soapstone' } },
+    parts: (w, d, h) => [
+      ...cabinetParts(w, d, h),
+      box(0, h + 0.002, 0, w * 0.5, 0.012, d * 0.55, 'primary' as Slot),
+      box(0, h + 0.14, -d * 0.35, 0.04, 0.26, 0.04, 'metal'),
+      box(0, h + 0.62, -d / 2 + 0.02, w * 0.7, 0.9, 0.025, 'glass'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'vanity-double',
+    name: 'Vanity (double)',
+    category: 'Bathroom',
+    size: sz(6, 1.8, 2.8),
+    slots: { primary: { label: 'Cabinet', default: 'walnut' }, accent: { label: 'Top', default: 'soapstone' } },
+    parts: (w, d, h) => [
+      ...cabinetParts(w, d, h),
+      box(-w * 0.25, h + 0.14, -d * 0.35, 0.04, 0.26, 0.04, 'metal'),
+      box(w * 0.25, h + 0.14, -d * 0.35, 0.04, 0.26, 0.04, 'metal'),
+      box(-w * 0.25, h + 0.62, -d / 2 + 0.02, w * 0.38, 0.9, 0.025, 'glass'),
+      box(w * 0.25, h + 0.62, -d / 2 + 0.02, w * 0.38, 0.9, 0.025, 'glass'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'bathtub',
+    name: 'Freestanding tub',
+    category: 'Bathroom',
+    size: sz(5.5, 2.7, 2),
+    slots: { primary: { label: 'Porcelain', default: 'porcelain' } },
+    parts: (w, d, h) => [
+      box(0, h / 2, 0, w, h, d, 'primary'),
+      box(0, h + 0.002, 0, w - 0.14, 0.01, d - 0.14, 'glass'),
+      box(w / 2 - 0.12, h + 0.35, 0, 0.04, 0.7, 0.04, 'metal'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'shower',
+    name: 'Shower enclosure',
+    category: 'Bathroom',
+    size: sz(3.5, 3.5, 7),
+    slots: { primary: { label: 'Tile', default: 'tile-cream' } },
+    parts: (w, d, h) => [
+      box(0, 0.05, 0, w, 0.1, d, 'primary'),
+      box(0, h / 2, d / 2 - 0.01, w, h, 0.02, 'glass'),
+      box(w / 2 - 0.01, h / 2, 0, 0.02, h, d, 'glass'),
+      box(0, h * 0.85, -d / 2 + 0.05, 0.04, 0.04, 0.2, 'metal'),
+      box(-w / 2 + 0.1, h * 0.55, -d / 2 + 0.03, 0.05, 0.3, 0.02, 'metal'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'washer',
+    name: 'Washer',
+    category: 'Bathroom',
+    size: sz(2.3, 2.4, 3),
+    slots: { primary: { label: 'Finish', default: 'painted-white' } },
+    parts: (w, d, h) => [box(0, h / 2, 0, w, h, d, 'primary'), cyl(0, h * 0.5, d / 2 + 0.005, w * 0.6, 0.01, w * 0.6, 'screen')],
+    solid: true,
+  },
+  // ---------------- Storage
+  {
+    id: 'shelving',
+    name: 'Utility shelving',
+    category: 'Storage',
+    size: sz(4, 1.5, 6),
+    slots: { primary: { label: 'Frame', default: 'black-metal' }, secondary: { label: 'Back', default: 'black-wood' }, accent: { label: 'Items', default: 'timber-dark' } },
+    parts: (w, d, h) => shelfParts(w, d, h, 4),
+    solid: true,
+  },
+  {
+    id: 'workbench',
+    name: 'Workbench',
+    category: 'Storage',
+    size: sz(8, 2.5, 3),
+    slots: { primary: { label: 'Top', default: 'timber-dark' }, secondary: { label: 'Frame', default: 'black-metal' } },
+    parts: (w, d, h) => [...tableParts(w, d, h), box(0, h * 0.35, 0, w - 0.2, 0.04, d - 0.1, 'primary'), box(0, h + 0.45, -d / 2 + 0.02, w * 0.9, 0.9, 0.03, 'secondary')],
+    solid: true,
+  },
+  {
+    id: 'storage-bin',
+    name: 'Storage cabinet',
+    category: 'Storage',
+    size: sz(3, 1.6, 6.5),
+    slots: { primary: { label: 'Body', default: 'black-metal' } },
+    parts: (w, d, h) => [box(0, h / 2, 0, w, h, d, 'primary'), box(0, h / 2, d / 2 + 0.003, 0.006, h * 0.96, 0.004, 'secondary'), box(-0.06, h * 0.5, d / 2 + 0.012, 0.012, 0.35, 0.02, 'metal'), box(0.06, h * 0.5, d / 2 + 0.012, 0.012, 0.35, 0.02, 'metal')],
+    solid: true,
+  },
+  {
+    id: 'platform',
+    name: 'Raised platform',
+    category: 'Storage',
+    size: { w: f(12), d: f(5), h: 0.4 },
+    slots: { primary: { label: 'Surface', default: 'carpet-grey' }, secondary: { label: 'Riser', default: 'black-wood' } },
+    parts: (w, d, h) => [box(0, h / 2 - 0.02, 0, w, h - 0.04, d, 'secondary'), box(0, h - 0.01, 0, w, 0.02, d, 'primary')],
+    solid: false,
+    flat: true,
+  },
+  {
+    id: 'post',
+    name: 'Timber post',
+    category: 'Site',
+    size: { w: 0.2, d: 0.2, h: 2.3 },
+    slots: { primary: { label: 'Timber', default: 'timber' } },
+    parts: (w, d, h) => [box(0, h / 2, 0, w, h, d, 'primary'), box(0, 0.06, 0, w * 1.5, 0.12, d * 1.5, 'metal'), box(0, h - 0.06, 0, w * 1.4, 0.12, d * 1.4, 'primary')],
+    solid: true,
+  },
+  {
+    id: 'chimney',
+    name: 'Stone chimney',
+    category: 'Site',
+    size: { w: f(7), d: f(3), h: 9.8 },
+    slots: { primary: { label: 'Stone', default: 'stone-dark' } },
+    parts: (w, d, h) => [box(0, h / 2, 0, w, h, d, 'primary'), box(0, h + 0.1, 0, w * 1.12, 0.2, d * 1.12, 'metal')],
+    solid: true,
+  },
+  // ---------------- Lighting
+  {
+    id: 'floor-lamp',
+    name: 'Floor lamp',
+    category: 'Lighting',
+    size: sz(1.2, 1.2, 5.4),
+    slots: { primary: { label: 'Stem', default: 'brass' } },
+    parts: (w, d, h) => [cyl(0, 0.02, 0, w * 0.6, 0.04, d * 0.6, 'primary'), cyl(0, h / 2, 0, 0.03, h, 0.03, 'primary'), cyl(0, h - 0.17, 0, w, 0.34, d, 'glow')],
+    solid: false,
+  },
+  {
+    id: 'table-lamp',
+    name: 'Table lamp',
+    category: 'Lighting',
+    size: sz(1, 1, 1.8),
+    slots: { primary: { label: 'Base', default: 'brass' } },
+    parts: (w, d, h) => [cyl(0, h * 0.2, 0, w * 0.4, h * 0.4, d * 0.4, 'primary'), cyl(0, h * 0.7, 0, w, h * 0.55, d, 'glow')],
+    solid: false,
+  },
+  {
+    id: 'pendant',
+    name: 'Pendant light',
+    category: 'Lighting',
+    size: sz(1.4, 1.4, 3),
+    slots: { primary: { label: 'Shade', default: 'black-metal' } },
+    parts: (w, d, h) => [cyl(0, h - 0.3, 0, 0.015, 0.6, 0.015, 'primary'), cone(0, 0.2, 0, w, 0.4, d, 'primary'), cyl(0, 0.04, 0, w * 0.45, 0.06, d * 0.45, 'glow')],
+    solid: false,
+    defaultElevation: 1.6,
+  },
+  {
+    id: 'chandelier',
+    name: 'Timber chandelier',
+    category: 'Lighting',
+    size: sz(4, 4, 3.5),
+    slots: { primary: { label: 'Frame', default: 'black-metal' } },
+    parts: (w, d, h) => [
+      cyl(0, h - 0.6, 0, 0.03, 1.2, 0.03, 'primary'),
+      box(0, 0.6, 0, w, 0.08, 0.08, 'primary'),
+      box(0, 0.6, 0, 0.08, 0.08, d, 'primary'),
+      sph(-w * 0.45, 0.45, 0, 0.18, 0.28, 0.18, 'glow'),
+      sph(w * 0.45, 0.45, 0, 0.18, 0.28, 0.18, 'glow'),
+      sph(0, 0.45, -d * 0.45, 0.18, 0.28, 0.18, 'glow'),
+      sph(0, 0.45, d * 0.45, 0.18, 0.28, 0.18, 'glow'),
+    ],
+    solid: false,
+    defaultElevation: 3,
+  },
+  // ---------------- Decor
+  {
+    id: 'rug',
+    name: 'Area rug',
+    category: 'Decor',
+    size: { w: f(8), d: f(10), h: 0.015 },
+    slots: { primary: { label: 'Rug', default: 'rug-wool' } },
+    parts: (w, d, h) => [box(0, h / 2, 0, w, h, d, 'primary')],
+    solid: false,
+    flat: true,
+  },
+  {
+    id: 'plant',
+    name: 'Potted plant',
+    category: 'Decor',
+    size: sz(1.4, 1.4, 4),
+    slots: { primary: { label: 'Pot', default: 'black-metal' } },
+    parts: (w, d, h) => [cyl(0, h * 0.14, 0, w * 0.55, h * 0.28, d * 0.55, 'primary'), sph(0, h * 0.65, 0, w, h * 0.7, d, 'foliage')],
+    solid: false,
+  },
+  {
+    id: 'wall-art',
+    name: 'Wall art',
+    category: 'Decor',
+    size: sz(3, 0.1, 2.2),
+    slots: { primary: { label: 'Frame', default: 'black-wood' }, accent: { label: 'Canvas', default: 'paint-clay' } },
+    parts: (w, d, h) => [box(0, h / 2, 0, w, h, d, 'primary'), box(0, h / 2, d / 2 + 0.003, w - 0.1, h - 0.1, 0.01, 'accent')],
+    solid: false,
+    defaultElevation: 1.2,
+  },
+  {
+    id: 'mirror',
+    name: 'Mirror',
+    category: 'Decor',
+    size: sz(2.4, 0.1, 3.2),
+    slots: { primary: { label: 'Frame', default: 'brass' } },
+    parts: (w, d, h) => [box(0, h / 2, 0, w, h, d, 'primary'), box(0, h / 2, d / 2 + 0.003, w - 0.07, h - 0.07, 0.01, 'glass')],
+    solid: false,
+    defaultElevation: 1,
+  },
+  // ---------------- Site
+  {
+    id: 'tree-conifer',
+    name: 'Conifer',
+    category: 'Site',
+    size: sz(9, 9, 32),
+    slots: {},
+    parts: (w, d, h) => [
+      cyl(0, h * 0.06, 0, w * 0.08, h * 0.12, d * 0.08, 'bark'),
+      cone(0, h * 0.3, 0, w, h * 0.4, d, 'foliage'),
+      cone(0, h * 0.55, 0, w * 0.78, h * 0.36, d * 0.78, 'foliage'),
+      cone(0, h * 0.78, 0, w * 0.55, h * 0.34, d * 0.55, 'foliage'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'tree-oak',
+    name: 'Shade tree',
+    category: 'Site',
+    size: sz(16, 16, 26),
+    slots: {},
+    parts: (w, d, h) => [
+      cyl(0, h * 0.22, 0, w * 0.05, h * 0.44, d * 0.05, 'bark'),
+      sph(0, h * 0.68, 0, w, h * 0.5, d, 'foliage'),
+      sph(w * 0.22, h * 0.6, d * 0.1, w * 0.6, h * 0.34, d * 0.6, 'foliage'),
+      sph(-w * 0.2, h * 0.58, -d * 0.12, w * 0.6, h * 0.34, d * 0.6, 'foliage'),
+    ],
+    solid: true,
+  },
+  {
+    id: 'shrub',
+    name: 'Shrub',
+    category: 'Site',
+    size: sz(3.5, 3.5, 3),
+    slots: {},
+    parts: (w, d, h) => [sph(0, h * 0.45, 0, w, h * 0.9, d, 'foliage')],
+    solid: false,
+  },
+  {
+    id: 'planter',
+    name: 'Timber planter',
+    category: 'Site',
+    size: sz(6, 2, 1.6),
+    slots: { primary: { label: 'Timber', default: 'timber-dark' } },
+    parts: (w, d, h) => [box(0, h / 2, 0, w, h, d, 'primary'), box(0, h + 0.1, 0, w * 0.92, 0.28, d * 0.8, 'foliage')],
+    solid: true,
+  },
+];
+
